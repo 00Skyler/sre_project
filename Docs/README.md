@@ -11,6 +11,11 @@ And finally, apply:
 
 <img width="815" height="824" alt="image" src="https://github.com/user-attachments/assets/1b04ccc6-2932-42f9-8c5d-980fd731a2f7" />
 
+Then add helm as a provider and apply. 
+
+<img width="1058" height="309" alt="image" src="https://github.com/user-attachments/assets/18d3618e-bc76-4335-969d-b4dffa0fe8dd" />
+
+Both Kubernetes and Helm must be visible on the provider list. The configuration file will be found in: Terraform/required_providers.tf
 
 
 
