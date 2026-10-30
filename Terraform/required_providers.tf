@@ -13,7 +13,7 @@ resource "kubernetes_namespace_v1" "k8s" {
 provider "helm" {
   kubernetes = {
     config_path = "~/.kube/config"
-    config_context = "minikube
+    config_context = "minikube"
   }
 } # This block enables Terraform to interact with Helm to install charts into k8s
 
