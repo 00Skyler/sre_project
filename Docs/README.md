@@ -35,3 +35,18 @@ Then using: <kubectl get pods -n monitoring /> we can check that the pods are ru
 <img width="885" height="212" alt="image" src="https://github.com/user-attachments/assets/6280a8df-5db7-4ee2-87b8-1e910eebdb74" />
 
 *Note: If you are connected to the corporate network at the office or using a corporate vpn, the state metrics image might not pull. 
+
+Then Grafana using the command: < helm repo add grafana-community https://grafana-community.github.io/helm-charts /> 
+
+<img width="1239" height="116" alt="image" src="https://github.com/user-attachments/assets/4e2cdaa5-bd63-47fc-a9fd-f6924752dd26" />
+
+Then <helm install grafana grafana-community/grafana -n monitoring /> for installing the tool: 
+
+<img width="1806" height="530" alt="image" src="https://github.com/user-attachments/assets/953520b5-fe84-4de5-97fb-d36f71de2571" />
+
+You will be prompted to get your admin password using the command: < kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo /> 
+
+
+You will see the grafana pod running:
+
+<img width="933" height="197" alt="image" src="https://github.com/user-attachments/assets/36e58999-08a6-447f-930d-71b38ef5f1c6" />
