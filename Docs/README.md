@@ -17,5 +17,21 @@ Then add helm as a provider and apply.
 
 Both Kubernetes and Helm must be visible on the provider list. The configuration file will be found in: Terraform/required_providers.tf
 
+Then, add the helm repos we will be needing for each tool we wish to deploy, and create a namespace on k8s cluster: 
+
+<img width="967" height="105" alt="image" src="https://github.com/user-attachments/assets/7ff3fbf0-38b7-4d6b-96f3-86e463f941c5" />
+
+Here Prometheus and all other monitoring tools will be added into the monitoring namespace: 
+
+<img width="585" height="123" alt="image" src="https://github.com/user-attachments/assets/841dcc47-e909-4c9a-a92f-162c9e0ef98b" />
+
+Then with the following command, prometheus will be installed inside the namespace monitoring and will be deployed: <helm install prometheus prometheus-community/prometheus --namespace monitoring/>
+
+<img width="1394" height="703" alt="image" src="https://github.com/user-attachments/assets/40a44702-b4ea-4c04-8533-a1d1f83971d4" />
+
+Then using: <kubectl get pods -n monitoring /> we can check that the pods are running: 
 
 
+<img width="885" height="212" alt="image" src="https://github.com/user-attachments/assets/6280a8df-5db7-4ee2-87b8-1e910eebdb74" />
+
+*Note: If you are connected to the corporate network at the office or using a corporate vpn, the state metrics image might not pull. 
