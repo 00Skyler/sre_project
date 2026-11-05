@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: sre-project-app
+  namespace: application
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: sre-project-app
+
+  template:
+    metadata:
+      labels:
+        app: sre-project-app
+
+    spec:
+      containers:
+        - name: sre-project-app
+          image: itsskyomg/sre-project-app:v1
+
+          ports:
+            - containerPort: 5000
