@@ -290,7 +290,7 @@ data:
       static_configs:
       - targets:
         - localhost:9090
-        - sre-project-app:5000/metrics
+        - sre-project-app:5000
     - job_name: prometheus-pushgateway
       honor_labels: true
       kubernetes_sd_configs:
