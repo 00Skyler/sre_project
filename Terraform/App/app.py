@@ -1,6 +1,10 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+
+# Enable Prometheus metrics
+metrics = PrometheusMetrics(app)
 
 @app.route('/')
 def hello_world():
@@ -11,15 +15,14 @@ stores = [
         "name": "My Store",
         "items": [
             {
-            "name": "Chair",
-            "price": 15.99
+                "name": "Chair",
+                "price": 15.99
             }
         ]
-        
     }
 ]
 
-@app.get('/store') # 'http://127.0.0.1:5000/store'
+@app.get('/store')
 def get_stores():
     return {"stores": stores}
 
