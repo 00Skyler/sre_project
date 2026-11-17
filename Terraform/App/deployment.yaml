@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: sre-project-app
-          image: itsskyomg/sre-project-app:v1
+          image: itsskyomg/sre-project-app:v2
 
           ports:
             - containerPort: 5000
