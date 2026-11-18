@@ -8,14 +8,32 @@ resource "helm_release" "prometheus" {
   values = [
     yamlencode({
       extraScrapeConfigs = <<-EOT
-        - job_name: 'sre-project-app'
-          scrape_interval: 15s
-          metrics_path: /metrics
+      - job_name: 'sre-project-app'
+        scrape_interval: 15s
+        metrics_path: /metrics
 
-          static_configs:
-            - targets:
-                - 'sre-project-app.application.svc.cluster.local:5000'
-      EOT
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - application
+
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: sre-project-app
+            action: keep
+
+          - source_labels: [__meta_kubernetes_pod_phase]
+            regex: Running
+            action: keep
+
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: '$1:5000'
+
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+    EOT
     })
   ]
 }
