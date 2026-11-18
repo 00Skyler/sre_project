@@ -1,6 +1,7 @@
 # Terraform working directories
 **/.terraform/*
-
+*.tfvars
+*.tfvars.json
 # Terraform state files
 *.tfstate
 *.tfstate.*
