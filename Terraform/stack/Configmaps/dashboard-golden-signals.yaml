@@ -1,575 +1,555 @@
-piVersion: apps/v1
-kind: Deployment
-metadata:
-  name: grafana-deployment
-  namespace: monitoring
-  labels:
-    app: grafana
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: grafana
-  template:
-    metadata:
-      labels:
-        app: grafana
-    spec:
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "2"
-      containers:
-        - name: grafana
-          image: grafana/grafana:latest
-          ports:
-            - containerPort: 3000
-          volumeMounts:
-            - name: grafana-config-datasources
-              mountPath: /etc/grafana/provisioning/datasources
-              readOnly: true
-            - name: grafana-config-dashboards
-              mountPath: /etc/grafana/provisioning/dashboards
-              readOnly: true
-            - name: grafana-config-alerts
-              mountPath: /etc/grafana/provisioning/alerting
-              readOnly: true
-      volumes:
-        - name: grafana-config-datasources
-          configMap:
-            name: grafana-datasources-config
-        - name: grafana-config-dashboards
-          configMap:
-            name: grafana-dashboards-config
-        - name: grafana-config-alerts
-          configMap:
-            name: grafana-alerts-config
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: grafana-service
-  namespace: monitoring
-  labels:
-    app: grafana
-spec:
-  selector:
-    app: grafana
-  ports:
-    - protocol: TCP
-      port: 3000
-      targetPort: 3000
-  type: NodePort
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: grafana-datasources-config
-  namespace: monitoring
-  labels:
-    app: grafana
-data:
-  datasources.yaml: |
-    apiVersion: 1
-    datasources:
-      - name: Prometheus
-        type: prometheus
-        access: proxy
-        url: http://prometheus-service.monitoring.svc.cluster.local:9090
-        isDefault: true
-        editable: true
-      - name: Loki
-        type: loki
-        access: proxy
-        url: http://loki.opentelemetry.svc.cluster.local:3100
-        isDefault: false
-        editable: true
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: grafana-dashboards-config
-  namespace: monitoring
-  labels:
-    app: grafana
-data:
-  dashboards.yaml: |
-    apiVersion: 1
-    providers:
-      - name: 'default'
-        orgId: 1
-        folder: ''
-        type: file
-        disableDeletion: false
-        options:
-          path: /etc/grafana/provisioning/dashboards
-  example-dashboard.json: |
-    {
-      "id": null,
-      "uid": "example-dashboard",
-      "title": "Example Dashboard",
-      "tags": [],
-      "style": "dark",
-      "timezone": "browser",
-      "editable": true,
-      "panels": [
-        {
-          "datasource": "Prometheus",
-          "id": 1,
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-          "targets": [
-            {
-              "expr": "sum by(job) (rate(process_cpu_seconds_total[1m]))",
-              "refId": "A"
-            }
-          ],
-          "title": "CPU Usage",
-          "type": "graph"
-        },
-        {
-          "datasource": "Prometheus",
-          "id": 2,
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-          "targets": [
-            {
-              "expr": "sum(rate(container_cpu_usage_seconds_total[5m])) by (container_label_io_kubernetes_pod_name)",
-              "refId": "B"
-            }
-          ],
-          "title": "Pod CPU Usage",
-          "type": "graph"
-        },
-        {
-          "datasource": "Prometheus",
-          "id": 3,
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-          "targets": [
-            {
-              "expr": "rate(otel_collector_span_metrics_calls_total{span_name=\"goo\", status_code=\"STATUS_CODE_ERROR\"}[5m])",
-              "refId": "C"
-            }
-          ],
-          "title": "goo application errors",
-          "type": "graph"
-        },
-        {
-          "datasource": "Loki",
-          "id": 4,
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-          "targets": [
-            {
-              "expr": "{service_name=\"unknown_service\"} |= `goo encountered an error:`",
-              "refId": "D"
-            }
-          ],
-          "title": "Error Occurrences for Unknown Service",
-          "type": "logs"
-        }
-      ],
-      "schemaVersion": 16,
-      "version": 1
+{
+  "apiVersion": "dashboard.grafana.app/v1beta1",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "adjsqzj",
+    "namespace": "default",
+    "uid": "P944kFjtXIBeyiRyw8syCPJzzblNtORrsrkWsOVAz6MX",
+    "resourceVersion": "11",
+    "generation": 18,
+    "creationTimestamp": "2026-11-17T17:46:08Z",
+    "labels": {
+      "grafana.app/deprecatedInternalID": "1"
+    },
+    "annotations": {
+      "grafana.app/createdBy": "user:cg3f11myazw8we",
+      "grafana.app/updatedBy": "user:cg3f11myazw8we",
+      "grafana.app/updatedTimestamp": "2026-11-18T20:23:34Z",
+      "grafana.app/saved-from-ui": "Grafana v12.3.1 (3a1c80ca7c)"
     }
-  golden-signal.json: |
-    {
-      "title": "Golden Signals Dashboard",
-      "panels": [
+  },
+  "spec": {
+    "annotations": {
+      "list": [
         {
-          "title": "Latency",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "targets": [
-            {
-              "expr": "sum(rate(otel_collector_span_metrics_duration_milliseconds_bucket[5m])) by (span_name)",
-              "legendFormat": "{{ span_name }}"
-            }
-          ],
-          "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 }
-        },
-        {
-          "title": "Traffic (Receive Bytes)",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "targets": [
-            {
-              "expr": "sum(rate(container_network_receive_bytes_total[5m])) by (container_label_k8s_app)",
-              "legendFormat": "{{ container_label_k8s_app }}"
-            }
-          ],
-          "gridPos": { "x": 0, "y": 9, "w": 12, "h": 8 }
-        },
-        {
-          "title": "Traffic (Transmit Bytes)",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "targets": [
-            {
-              "expr": "sum(rate(container_network_transmit_bytes_total[5m])) by (container_label_k8s_app)",
-              "legendFormat": "{{ container_label_k8s_app }}"
-            }
-          ],
-          "gridPos": { "x": 12, "y": 9, "w": 12, "h": 8 }
-        },
-        {
-          "title": "Traffic (Receive Errors)",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "targets": [
-            {
-              "expr": "sum(rate(container_network_receive_errors_total[5m])) by (container_label_k8s_app)",
-              "legendFormat": "{{ container_label_k8s_app }}"
-            }
-          ],
-          "gridPos": { "x": 0, "y": 18, "w": 12, "h": 8 }
-        },
-        {
-          "title": "Traffic (Transmit Errors)",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "targets": [
-            {
-              "expr": "sum(rate(container_network_transmit_errors_total[5m])) by (container_label_k8s_app)",
-              "legendFormat": "{{ container_label_k8s_app }}"
-            }
-          ],
-          "gridPos": { "x": 12, "y": 18, "w": 12, "h": 8 }
-        },
-        {
-          "title": "Errors (Container Scrape Error)",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "targets": [
-            {
-              "expr": "sum(rate(container_scrape_error[5m])) by (job)",
-              "legendFormat": "{{ job }}"
-            }
-          ],
-          "gridPos": { "x": 0, "y": 27, "w": 24, "h": 8 }
-        },
-        {
-          "title": "Errors (Application Logs)",
-          "type": "logs",
-          "datasource": "Loki",
-          "targets": [
-            {
-              "expr": "{service_name=\"unknown_service\"} |= `err`",
-              "legendFormat": "{{ service_name }}"
-            }
-          ],
-          "gridPos": { "x": 0, "y": 36, "w": 24, "h": 8 }
-        },
-        {
-          "title": "Saturation (CPU Usage)",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "targets": [
-            {
-              "expr": "sum(rate(container_cpu_system_seconds_total[5m])) by (container_label_io_kubernetes_container_name)",
-              "legendFormat": "{{ container_label_io_kubernetes_container_name }}"
-            }
-          ],
-          "gridPos": { "x": 0, "y": 45, "w": 12, "h": 8 }
-        },
-        {
-          "title": "Saturation (Filesystem Writes)",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "targets": [
-            {
-              "expr": "sum(rate(container_fs_writes_bytes_total[5m])) by (container_label_io_kubernetes_container_name)",
-              "legendFormat": "{{ container_label_io_kubernetes_container_name }}"
-            }
-          ],
-          "gridPos": { "x": 12, "y": 45, "w": 12, "h": 8 }
+          "builtIn": 1,
+          "datasource": {
+            "type": "grafana",
+            "uid": "-- Grafana --"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
         }
       ]
-    }
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: grafana-alerts-config
-  namespace: monitoring
-  labels:
-    app: grafana
-data:
-  alerts.json: |
-    {
-        "apiVersion": 1,
-        "groups": [
-            {
-                "orgId": 1,
-                "name": "Conditions evaluated each minute(1m)",
-                "folder": "alerts",
-                "interval": "1m",
-                "rules": [
-                    {
-                        "uid": "aa1dac3xmsav4b",
-                        "title": "Endpoint's latency lower than 1400 miliseconds",
-                        "condition": "C",
-                        "data": [
-                            {
-                                "refId": "A",
-                                "relativeTimeRange": {
-                                    "from": 600,
-                                    "to": 0
-                                },
-                                "datasourceUid": "PBFA97CFB590B2093",
-                                "model": {
-                                    "editorMode": "builder",
-                                    "expr": "sum(rate(otel_collector_span_metrics_duration_milliseconds_bucket[5m])) by (span_name)",
-                                    "instant": true,
-                                    "intervalMs": 1000,
-                                    "legendFormat": "__auto",
-                                    "maxDataPoints": 43200,
-                                    "range": false,
-                                    "refId": "A"
-                                }
-                            },
-                            {
-                                "refId": "C",
-                                "relativeTimeRange": {
-                                    "from": 0,
-                                    "to": 0
-                                },
-                                "datasourceUid": "__expr__",
-                                "model": {
-                                    "conditions": [
-                                        {
-                                            "evaluator": {
-                                                "params": [
-                                                    1
-                                                ],
-                                                "type": "gt"
-                                            },
-                                            "operator": {
-                                                "type": "and"
-                                            },
-                                            "query": {
-                                                "params": [
-                                                    "C"
-                                                ]
-                                            },
-                                            "reducer": {
-                                                "params": [],
-                                                "type": "last"
-                                            },
-                                            "type": "query"
-                                        }
-                                    ],
-                                    "datasource": {
-                                        "type": "__expr__",
-                                        "uid": "__expr__"
-                                    },
-                                    "expression": "A",
-                                    "intervalMs": 1000,
-                                    "refId": "B",
-                                    "type": "threshold"
-                                }
-                            }
-                        ],
-                        "panelId": 1,
-                        "for": "1m",
-                        "isPaused": false,
-                        "notification_settings": {
-                            "receiver": "grafana-default-email"
-                        }
-                    },
-                    {
-                        "uid": "a01dac3xmsav4b",
-                        "title": "Receive bytes lower than 250000 bytes",
-                        "condition": "C",
-                        "data": [
-                            {
-                                "refId": "A",
-                                "relativeTimeRange": {
-                                    "from": 600,
-                                    "to": 0
-                                },
-                                "datasourceUid": "PBFA97CFB590B2093",
-                                "model": {
-                                    "editorMode": "builder",
-                                    "expr": "sum(rate(container_network_receive_bytes_total[5m])) by (container_label_k8s_app)",
-                                    "instant": true,
-                                    "intervalMs": 1000,
-                                    "legendFormat": "__auto",
-                                    "maxDataPoints": 43200,
-                                    "range": false,
-                                    "refId": "A"
-                                }
-                            },
-                            {
-                                "refId": "C",
-                                "relativeTimeRange": {
-                                    "from": 0,
-                                    "to": 0
-                                },
-                                "datasourceUid": "__expr__",
-                                "model": {
-                                    "conditions": [
-                                        {
-                                            "evaluator": {
-                                                "params": [
-                                                    250000
-                                                ],
-                                                "type": "gt"
-                                            },
-                                            "operator": {
-                                                "type": "and"
-                                            },
-                                            "query": {
-                                                "params": [
-                                                    "C"
-                                                ]
-                                            },
-                                            "reducer": {
-                                                "params": [],
-                                                "type": "last"
-                                            },
-                                            "type": "query"
-                                        }
-                                    ],
-                                    "datasource": {
-                                        "type": "__expr__",
-                                        "uid": "__expr__"
-                                    },
-                                    "expression": "A",
-                                    "intervalMs": 1000,
-                                    "refId": "B",
-                                    "type": "threshold"
-                                }
-                            }
-                        ],
-                        "panelId": 1,
-                        "for": "1m",
-                        "isPaused": false,
-                        "notification_settings": {
-                            "receiver": "grafana-default-email"
-                        }
-                    },
-                    {
-                      "uid": "ce2e4jo7pf5s0f",
-                      "title": "Availability must have less than 5500 errors",
-                      "condition": "C",
-                      "data": [
-                          {
-                              "refId": "A",
-                              "queryType": "range",
-                              "relativeTimeRange": {
-                                  "from": 600,
-                                  "to": 0
-                              },
-                              "datasourceUid": "P8E80F9AEF21F6940",
-                              "model": {
-                                  "datasource": {
-                                      "type": "loki",
-                                      "uid": "P8E80F9AEF21F6940"
-                                  },
-                                  "editorMode": "code",
-                                  "expr": "sum(count_over_time({service_name=\"unknown_service\"} |= \"err\" [5m]))  by(service_name) ",
-                                  "intervalMs": 1000,
-                                  "maxDataPoints": 43200,
-                                  "queryType": "range",
-                                  "refId": "A"
-                              }
-                          },
-                          {
-                              "refId": "B",
-                              "relativeTimeRange": {
-                                  "from": 0,
-                                  "to": 0
-                              },
-                              "datasourceUid": "__expr__",
-                              "model": {
-                                  "conditions": [
-                                      {
-                                          "evaluator": {
-                                              "params": [],
-                                              "type": "gt"
-                                          },
-                                          "operator": {
-                                              "type": "and"
-                                          },
-                                          "query": {
-                                              "params": [
-                                                  "B"
-                                              ]
-                                          },
-                                          "reducer": {
-                                              "params": [],
-                                              "type": "last"
-                                          },
-                                          "type": "query"
-                                      }
-                                  ],
-                                  "datasource": {
-                                      "type": "__expr__",
-                                      "uid": "__expr__"
-                                  },
-                                  "expression": "A",
-                                  "intervalMs": 1000,
-                                  "maxDataPoints": 43200,
-                                  "reducer": "max",
-                                  "refId": "B",
-                                  "settings": {
-                                      "mode": ""
-                                  },
-                                  "type": "reduce"
-                              }
-                          },
-                          {
-                              "refId": "C",
-                              "relativeTimeRange": {
-                                  "from": 0,
-                                  "to": 0
-                              },
-                              "datasourceUid": "__expr__",
-                              "model": {
-                                  "conditions": [
-                                      {
-                                          "evaluator": {
-                                              "params": [
-                                                  5500
-                                              ],
-                                              "type": "gt"
-                                          },
-                                          "operator": {
-                                              "type": "and"
-                                          },
-                                          "query": {
-                                              "params": [
-                                                  "C"
-                                              ]
-                                          },
-                                          "reducer": {
-                                              "params": [],
-                                              "type": "last"
-                                          },
-                                          "type": "query"
-                                      }
-                                  ],
-                                  "datasource": {
-                                      "type": "__expr__",
-                                      "uid": "__expr__"
-                                  },
-                                  "expression": "B",
-                                  "intervalMs": 1000,
-                                  "maxDataPoints": 43200,
-                                  "refId": "C",
-                                  "type": "threshold"
-                              }
-                          }
-                      ],
-                      "noDataState": "NoData",
-                      "execErrState": "Error",
-                      "for": "1m",
-                      "annotations": {},
-                      "labels": {},
-                      "isPaused": false,
-                      "notification_settings": {
-                          "receiver": "grafana-default-email"
-                      }
-                  }
-                ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 0,
+    "links": [],
+    "panels": [
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "cg3f25xwipg5cd"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "left",
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineStyle": {
+                "fill": "solid"
+              },
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "showValues": false,
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "decimals": 2,
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "reqps"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "id": 1,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.3.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "cg3f25xwipg5cd"
+            },
+            "editorMode": "builder",
+            "expr": "sum(rate(flask_http_request_total{job=\"sre-project-app\"}[5m]))",
+            "hide": false,
+            "instant": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Traffic Requests per Second (5 minutes)",
+        "transparent": true,
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "uid": "cg3f25xwipg5cd"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
             }
-        ]
-    }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "id": 5,
+        "options": {
+          "displayMode": "gradient",
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": false
+          },
+          "maxVizHeight": 300,
+          "minVizHeight": 16,
+          "minVizWidth": 8,
+          "namePlacement": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true,
+          "sizing": "auto",
+          "valueMode": "color"
+        },
+        "pluginVersion": "12.3.1",
+        "targets": [
+          {
+            "editorMode": "code",
+            "expr": "sum(\r\n  rate(\r\n    container_cpu_usage_seconds_total{\r\n      namespace=\"application\",\r\n      pod=~\"sre-project-app-.*\",\r\n      id=~\".*pod[^/]+\\\\.slice\"\r\n    }[5m]\r\n  )\r\n)",
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Total CPU usage",
+        "transparent": true,
+        "type": "bargauge"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "cg3f25xwipg5cd"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "left",
+              "axisSoftMin": 0,
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineStyle": {
+                "fill": "solid"
+              },
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "showValues": false,
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "s"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 7
+        },
+        "id": 3,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.3.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "cg3f25xwipg5cd"
+            },
+            "editorMode": "code",
+            "expr": "sum(\r\n  rate(flask_http_request_duration_seconds_sum{job=\"sre-project-app\"}[5m])\r\n)\r\n/\r\nsum(\r\n  rate(flask_http_request_duration_seconds_count{job=\"sre-project-app\"}[5m])\r\n)",
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Average HTTP Latency",
+        "transparent": true,
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "cg3f25xwipg5cd"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": true,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "Error %",
+              "axisPlacement": "left",
+              "axisSoftMin": 0,
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "smooth",
+              "lineStyle": {
+                "fill": "solid"
+              },
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "showValues": false,
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "displayName": "Total Errors",
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        },
+        "id": 2,
+        "options": {
+          "legend": {
+            "calcs": [
+              "count"
+            ],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.3.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "cg3f25xwipg5cd"
+            },
+            "editorMode": "code",
+            "expr": "100*\r\nsum(rate(flask_http_request_total{job=\"sre-project-app\",status=~\"5..\"}[5m]))\r\n/\r\nsum(rate(flask_http_request_total{job=\"sre-project-app\"}[5m]))",
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Request Errors Percentage",
+        "transparent": true,
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "cg3f25xwipg5cd"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "left",
+              "axisSoftMin": 0,
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineStyle": {
+                "fill": "solid"
+              },
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "showValues": false,
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "displayName": "Pod",
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "bytes"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 9,
+          "w": 24,
+          "x": 0,
+          "y": 16
+        },
+        "id": 6,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.3.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "cg3f25xwipg5cd"
+            },
+            "editorMode": "code",
+            "expr": "container_memory_working_set_bytes{\r\n  namespace=\"application\",\r\n  pod=~\"sre-project-app-.*\"\r\n}",
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Saturation: Memory Usage",
+        "transparent": true,
+        "type": "timeseries"
+      }
+    ],
+    "preload": false,
+    "refresh": "",
+    "schemaVersion": 42,
+    "tags": [],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "2026-11-19T17:34:36.067Z",
+      "to": "2026-11-19T18:02:47.347Z"
+    },
+    "timepicker": {},
+    "timezone": "browser",
+    "title": "Golden Signals ",
+    "uid": "adjsqzj",
+    "version": 18
+  },
+  "status": {}
+}
