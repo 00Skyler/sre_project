@@ -8,7 +8,9 @@ URL="http://localhost:5000"
 
 # Test configuration
 SUCCESS_REQUESTS=20
-ERROR_REQUESTS=5
+MAX_NUM=10
+MIN_NUM=1
+ERROR_REQUESTS=$((MIN_NUM + RANDOM % (MAX_NUM - MIN_NUM + 1)))
 INTERVAL=30
 
 echo "Starting Flask traffic generator..."
