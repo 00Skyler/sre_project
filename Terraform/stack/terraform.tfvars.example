@@ -1,0 +1,21 @@
+# ==========================================
+# Alertmanager Email Notification Config
+# ==========================================
+# Copy this file to terraform.tfvars and fill in your details:
+#   cp terraform.tfvars.example terraform.tfvars
+
+alert_email_to     = "your-actual-email@example.com"
+
+# Example 1: Gmail (Requires Google App Password)
+# 1. Enable 2FA on your Google Account
+# 2. Go to myaccount.google.com/apppasswords -> Generate "Mail" app password (16 characters)
+smtp_smarthost     = "smtp.gmail.com:587"
+smtp_from          = "your-gmail@gmail.com"
+smtp_auth_username = "your-gmail@gmail.com"
+smtp_auth_password = "xxxx xxxx xxxx xxxx"
+
+# Example 2: Outlook / Office 365
+# smtp_smarthost     = "smtp-mail.outlook.com:587"
+# smtp_from          = "your-email@outlook.com"
+# smtp_auth_username = "your-email@outlook.com"
+# smtp_auth_password = "your-outlook-password"

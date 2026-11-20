@@ -23,6 +23,7 @@ An end-to-end Site Reliability Engineering (SRE) project demonstrating **Infrast
 - [Operational Runbook & Access](#-operational-runbook--access)
   - [Accessing Grafana](#accessing-grafana)
   - [Accessing Prometheus](#accessing-prometheus)
+  - [Accessing Alertmanager](#accessing-alertmanager)
   - [Accessing Application & Metrics](#accessing-application--metrics)
 - [Generating Traffic & Simulating Incidents](#-generating-traffic--simulating-incidents)
 - [SRE Evaluation & Evidence Checklist (Screenshots)](#-sre-evaluation--evidence-checklist-screenshots)
@@ -185,6 +186,10 @@ kubectl cluster-info
 ```bash
 cd Terraform/stack
 
+# (Optional) Configure Email Notifications for Alertmanager
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your email and SMTP / App Password
+
 # Initialize Terraform providers (Kubernetes & Helm)
 terraform init
 
@@ -236,7 +241,14 @@ kubectl apply -f Configmaps/prometheus-config.yaml
    ```bash
    kubectl --namespace monitoring port-forward svc/prometheus-server 9090:80
    ```
-2. Open your browser at `http://localhost:9090` and verify the `sre-project-app` target status under **Status -> Targets**.
+2. Open your browser at `http://localhost:9090` and verify the `sre-project-app` target status under **Status -> Targets**, and configured rules under **Alerts**.
+
+### Accessing Alertmanager
+1. **Port-forward the Alertmanager service**:
+   ```bash
+   kubectl --namespace monitoring port-forward svc/prometheus-alertmanager 9093:9093
+   ```
+2. Open your browser at `http://localhost:9093` to view active alert groups, silences, and notification statuses.
 
 ### Accessing Application & Metrics
 1. **Port-forward the microservice**:
@@ -349,6 +361,16 @@ Use this section to attach screenshot evidence demonstrating that each component
 ```markdown
 <!-- PASTE SCREENSHOT HERE: Incident Simulation & Error Spike -->
 ![Incident Error Spike](docs/screenshots/07-incident-simulation.png)
+```
+
+---
+
+### Evidence 8: Alertmanager & Prometheus Firing Alerts
+> **What to capture:** Prometheus UI (`http://localhost:9090/alerts`) or Alertmanager UI (`http://localhost:9093`) showing the `HighErrorRate5xx` rule in the `FIRING` state during traffic chaos generation.
+
+```markdown
+<!-- PASTE SCREENSHOT HERE: Alertmanager Firing Alert -->
+![Alertmanager Firing Alert](docs/screenshots/08-alertmanager-firing.png)
 ```
 
 ---

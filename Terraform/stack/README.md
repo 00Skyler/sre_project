@@ -8,9 +8,18 @@ This directory contains the Terraform Infrastructure as Code (IaC) configuration
 | :--- | :--- | :--- |
 | [`required_providers.tf`](required_providers.tf:1) | `provider "kubernetes"`, `provider "helm"` | Configures K8s and Helm providers to target Minikube context (`~/.kube/config`). |
 | [`namespaces.tf`](namespaces.tf:1) | `kubernetes_namespace_v1` | Creates isolated namespaces: `application` and `monitoring`. |
-| [`prometheus.tf`](prometheus.tf:1) | `helm_release.prometheus` | Deploys Prometheus Server with Pod Service Discovery targeting `sre-project-app`. |
+| [`prometheus.tf`](prometheus.tf:1) | `helm_release.prometheus` | Deploys Prometheus Server and Alertmanager with Golden Signals alerting rules and Pod SD targeting `sre-project-app`. |
 | [`grafana.tf`](grafana.tf:1) | `helm_release.grafana` | Deploys Grafana server into the `monitoring` namespace. |
-| [`Configmaps/`](Configmaps/) | Dashboard & Scrape Configs | Golden Signals dashboard JSON and Prometheus Server scrape configurations. |
+| [`Configmaps/`](Configmaps/) | Dashboard, Scrape & Alert Configs | Golden Signals dashboard JSON, Prometheus scrape configs, and Alertmanager routing definitions. |
+
+## 📧 Email Alerts Configuration
+
+To route alerts to your email address:
+1. Copy the example configuration:
+   ```bash
+   cp terraform.tfvars.example terraform.tfvars
+   ```
+2. Open `terraform.tfvars` and fill in your destination email and SMTP credentials (e.g. Gmail App Password).
 
 ## 🚀 Execution
 
