@@ -62,8 +62,8 @@ graph TD
         prom -->|PromQL Datasource| grafana
     end
 
-    script -->|HTTP /store (200 OK) & /error (500 ERR)| svc
-    prom -->|Scrapes /metrics via Pod SD (15s)| pod1 & pod2 & pod3
+    script -->|"HTTP /store (200 OK) & /error (500 ERR)"| svc
+    prom -->|"Scrapes /metrics via Pod SD (15s)"| pod1 & pod2 & pod3
 ```
 
 ---
