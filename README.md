@@ -69,6 +69,7 @@ graph TD
 ```text
 .
 ├── scripts/
+│   ├── cluster.sh                      # SRE automation script (up, down, status, forward)
 │   └── traffic-test.sh                 # Automated load and HTTP 500 error chaos generator
 ├── Terraform/
 │   ├── App/
@@ -79,10 +80,13 @@ graph TD
 │   │   └── README.md                   # Application documentation
 │   └── stack/
 │       ├── required_providers.tf       # Terraform provider definitions (Kubernetes & Helm)
-│       ├── namespaces.tf               # Isolated namespaces: 'application', 'monitoring', 'metrics'
-│       ├── prometheus.tf               # Prometheus Helm release with custom Pod SD relabeling
+│       ├── namespaces.tf               # Isolated namespaces: 'application' and 'monitoring'
+│       ├── variables.tf                # Input variables for SMTP credentials & destination alert email
+│       ├── terraform.tfvars.example    # Configuration template for email notification credentials
+│       ├── prometheus.tf               # Prometheus Server & Alertmanager Helm release with alerting rules & Pod SD
 │       ├── grafana.tf                  # Grafana Helm release deployed into monitoring namespace
 │       ├── Configmaps/
+│       │   ├── alertmanager-config.yaml        # Alertmanager routing & Prometheus alerting rules manifest
 │       │   ├── dashboard-golden-signals.json   # Grafana Golden Signals Dashboard definition
 │       │   ├── prometheus-config.yaml          # Standalone Prometheus server configuration
 │       │   └── configmap-prometheus-server.yaml# Prometheus ConfigMap backup & reference
@@ -102,10 +106,20 @@ graph TD
 
 ### 2. Observability & Monitoring Stack
 - **`Terraform/stack/prometheus.tf`**:
-  - Deploys Prometheus via the official Helm chart (`prometheus-community/prometheus`).
+  - Deploys Prometheus and Alertmanager via the official Helm chart (`prometheus-community/prometheus`).
+  - Configures **Alertmanager** with global SMTP routing (`email_configs`) to dispatch incident notifications directly to your email address.
+  - Provisions automated SRE alerting rules:
+    - **`HighErrorRate5xx`** (`critical`): Fired when HTTP 5xx error percentage exceeds $10\%$ for $\ge 1\text{ min}$.
+    - **`HighHttpLatency`** (`warning`): Fired when average response latency exceeds $500\text{ ms}$.
+    - **`AppInstanceDown`** (`critical`): Fired when a pod target fails Prometheus scraping (`up == 0`).
+    - **`PodMemorySaturation`** (`warning`): Fired when pod working set memory exceeds $200\text{ MB}$.
   - Configures an `extraScrapeConfigs` job (`sre-project-app`) that leverages **Kubernetes Pod Service Discovery** (`kubernetes_sd_configs`), dynamically discovering all pods matching label `app: sre-project-app` running in the `application` namespace and scraping them every 15s at `/metrics`.
+- **`Terraform/stack/variables.tf` & `terraform.tfvars.example`**:
+  - Parameterizes SMTP credentials (`alert_email_to`, `smtp_smarthost`, `smtp_from`, `smtp_auth_username`, `smtp_auth_password`) so sensitive secrets remain isolated from version control.
 - **`Terraform/stack/grafana.tf`**:
   - Deploys Grafana via Helm (`grafana/grafana`) into the `monitoring` namespace.
+- **`Terraform/stack/Configmaps/alertmanager-config.yaml`**:
+  - Declarative Kubernetes manifest backup for Alertmanager routing trees and SRE Golden Signals alert rules.
 - **`Terraform/stack/Configmaps/dashboard-golden-signals.json`**:
   - Provisions the **Golden Signals Dashboard** in Grafana with custom panels:
     - **Traffic**: Request rate in requests per second (`reqps`) across the Flask endpoints.
@@ -164,6 +178,18 @@ Before launching the project, ensure you have the following installed on your ho
 ---
 
 ## 🚀 Deployment Guide
+
+### Fast Track (One-Command Deployment)
+```bash
+chmod +x scripts/cluster.sh scripts/traffic-test.sh
+
+# Complete end-to-end rollout (Minikube + Terraform + Helm + K8s App)
+./scripts/cluster.sh up
+```
+
+---
+
+### Manual Step-by-Step Deployment
 
 ### Step 1: Start Kubernetes Cluster
 ```bash

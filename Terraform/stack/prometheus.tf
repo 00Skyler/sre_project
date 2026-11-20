@@ -9,6 +9,57 @@ resource "helm_release" "prometheus" {
     yamlencode({
       alertmanager = {
         enabled = true
+        config = {
+          global = {
+            resolve_timeout    = "5m"
+            smtp_smarthost     = var.smtp_smarthost
+            smtp_from          = var.smtp_from
+            smtp_auth_username = var.smtp_auth_username
+            smtp_auth_password = var.smtp_auth_password
+            smtp_require_tls   = true
+          }
+          route = {
+            group_by        = ["alertname", "namespace", "job"]
+            group_wait      = "10s"
+            group_interval  = "30s"
+            repeat_interval = "1h"
+            receiver        = "sre-email-receiver"
+            routes = [
+              {
+                match = {
+                  severity = "critical"
+                }
+                receiver = "sre-email-receiver"
+                continue = true
+              }
+            ]
+          }
+          receivers = [
+            {
+              name = "sre-email-receiver"
+              email_configs = [
+                {
+                  to            = var.alert_email_to
+                  send_resolved = true
+                  headers = {
+                    Subject = "[ALERT {{ .Status | toUpper }}] {{ .CommonLabels.alertname }} ({{ .CommonLabels.severity }})"
+                  }
+                }
+              ]
+            }
+          ]
+          inhibit_rules = [
+            {
+              source_match = {
+                severity = "critical"
+              }
+              target_match = {
+                severity = "warning"
+              }
+              equal = ["alertname", "namespace"]
+            }
+          ]
+        }
       }
 
       alertmanagerFiles = {
