@@ -414,6 +414,10 @@ Note: You may see an Otel pod running, this is not being used in this project bu
 
 <img width="888" height="520" alt="image" src="https://github.com/user-attachments/assets/e15a6aa4-037b-47fc-8d6d-29c5741d8437" />
 
+## Alert sent to email:
+<img width="1179" height="2556" alt="image" src="https://github.com/user-attachments/assets/a3ca8627-a540-4e03-b1e4-3384457c49bf" />
+
+
 
 ---
 
