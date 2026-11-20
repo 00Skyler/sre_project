@@ -7,11 +7,10 @@ This directory contains the Terraform Infrastructure as Code (IaC) configuration
 | File | Terraform Resource | Description |
 | :--- | :--- | :--- |
 | [`required_providers.tf`](required_providers.tf:1) | `provider "kubernetes"`, `provider "helm"` | Configures K8s and Helm providers to target Minikube context (`~/.kube/config`). |
-| [`namespaces.tf`](namespaces.tf:1) | `kubernetes_namespace_v1` | Creates isolated namespaces: `application`, `monitoring`, and `metrics`. |
-| [`prometheus.tf`](prometheus.tf:1) | `helm_release.prometheus` | Deploys Prometheus Server and Alertmanager with Pod Service Discovery targeting `sre-project-app`. |
+| [`namespaces.tf`](namespaces.tf:1) | `kubernetes_namespace_v1` | Creates isolated namespaces: `application` and `monitoring`. |
+| [`prometheus.tf`](prometheus.tf:1) | `helm_release.prometheus` | Deploys Prometheus Server with Pod Service Discovery targeting `sre-project-app`. |
 | [`grafana.tf`](grafana.tf:1) | `helm_release.grafana` | Deploys Grafana server into the `monitoring` namespace. |
-| [`otel.tf`](otel.tf:1) | `helm_release.opentelemetry` | Deploys OpenTelemetry Collector in deployment mode into the `metrics` namespace. |
-| [`Configmaps/`](Configmaps/) | Kubernetes ConfigMaps | Declarative datasources, Golden Signals dashboard definitions, and alert rules. |
+| [`Configmaps/`](Configmaps/) | Dashboard & Scrape Configs | Golden Signals dashboard JSON and Prometheus Server scrape configurations. |
 
 ## 🚀 Execution
 
