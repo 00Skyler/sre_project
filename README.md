@@ -1,4 +1,4 @@
-# 🚀 SRE Infrastructure as Code & Observability Platform
+Mmmmm# 🚀 SRE Infrastructure as Code & Observability Platform
 
 An end-to-end Site Reliability Engineering (SRE) project demonstrating **Infrastructure as Code (IaC)**, **Microservices Metric Instrumentation**, and **Cloud-Native Observability**. This project provisions a resilient multi-namespace Kubernetes environment on Minikube using Terraform, deploys an instrumented Python Flask microservice, and configures an observability stack featuring **Prometheus** and **Grafana** with automated Golden Signals dashboards and alerting rules.
 
@@ -316,80 +316,104 @@ Use this section to attach screenshot evidence demonstrating that each component
 ### Evidence 1: Terraform Infrastructure Deployment
 > **What to capture:** Terminal output showing `terraform apply` completed successfully with all resources created (`kubernetes_namespace_v1`, `helm_release.prometheus`, `helm_release.grafana`).
 
-```markdown
-<!-- PASTE SCREENSHOT HERE: Terraform Apply Output -->
-![Terraform Apply Evidence](docs/screenshots/01-terraform-apply.png)
-```
+## Initiating Terraform:
+<img width="1222" height="730" alt="image" src="https://github.com/user-attachments/assets/6156925f-dfba-41ab-bbd7-44bf7bcb4849" />
+
+## After Apply:
+<img width="927" height="557" alt="image" src="https://github.com/user-attachments/assets/e4898048-7171-445a-a431-4bd1693eb375" />
+
+
 
 ---
 
 ### Evidence 2: Kubernetes Cluster & Pod Status
 > **What to capture:** Terminal output of `kubectl get all --all-namespaces` or individual namespaces (`application`, `monitoring`) showing all Pods in `Running` state and Services active.
 
-```markdown
-<!-- PASTE SCREENSHOT HERE: Kubectl Pods & Services -->
-![Kubernetes Pod Status](docs/screenshots/02-k8s-pod-status.png)
-```
+## Running Pods:
+<img width="1616" height="581" alt="image" src="https://github.com/user-attachments/assets/8e354892-a425-47d8-9029-00b9d4d87862" />
+
+Note: You may see an Otel pod running, this is not being used in this project but left there for optional use. 
+
+## Services:
+<img width="1870" height="698" alt="image" src="https://github.com/user-attachments/assets/53d9018a-843d-4b1f-9bea-8a6bbca8a19c" />
+
+## Deployments and replica sets:
+<img width="1903" height="840" alt="image" src="https://github.com/user-attachments/assets/cdef16a8-757a-4814-8e8a-7830f4f8a0e1" />
+
 
 ---
 
 ### Evidence 3: Prometheus Target Discovery & Scrape Status
 > **What to capture:** Prometheus UI (`http://localhost:9090/targets`) showing the `sre-project-app` scrape job in the `UP (3/3)` state, confirming Kubernetes Pod Service Discovery.
 
-```markdown
-<!-- PASTE SCREENSHOT HERE: Prometheus Targets UP -->
-![Prometheus Targets Status](docs/screenshots/03-prometheus-targets.png)
-```
+## SRE App as target in Prometheus:
+<img width="1858" height="284" alt="image" src="https://github.com/user-attachments/assets/bcb18db6-336b-4a9a-b126-da0680809100" />
+
 
 ---
 
 ### Evidence 4: Application Endpoints & `/metrics` Output
 > **What to capture:** Terminal or browser showing responses from `http://localhost:5000/store`, `http://localhost:5000/error` (HTTP 500), and the raw Prometheus metrics at `http://localhost:5000/metrics`.
 
-```markdown
-<!-- PASTE SCREENSHOT HERE: App Endpoints and /metrics -->
-![Application Metrics Output](docs/screenshots/04-app-metrics.png)
-```
+## Calling the store from URL:
+<img width="952" height="357" alt="image" src="https://github.com/user-attachments/assets/a20ff3c8-5f1e-46f3-93eb-baf0b283cfd6" />
+
+-----------------------------------------------------------
+## Capturing app metrics:
+<img width="937" height="990" alt="image" src="https://github.com/user-attachments/assets/ab39f1f1-71c2-413e-adcb-5047dd591928" />
+
+-----------------------------------------------------------
+## Simulated chaos:
+<img width="961" height="262" alt="image" src="https://github.com/user-attachments/assets/69f17b43-c882-4efc-87c2-46e815533a7c" />
+
+
 
 ---
 
 ### Evidence 5: Traffic Generator in Execution
 > **What to capture:** Active terminal running `scripts/traffic-test.sh`, displaying successful batch loops and simulated HTTP 500 errors.
 
-```markdown
-<!-- PASTE SCREENSHOT HERE: Traffic Test Script -->
-![Traffic Generator Execution](docs/screenshots/05-traffic-generator.png)
-```
+## Simulated traffic every 5 seconds, producing errors randomly 1 - 10 times:
+
+<img width="725" height="930" alt="image" src="https://github.com/user-attachments/assets/88bbfb3e-53e9-4455-b92b-82422ea63c2f" />
+
 
 ---
 
 ### Evidence 6: Grafana Golden Signals Dashboard
 > **What to capture:** Grafana UI showing the **Golden Signals Dashboard** with populated timeseries data for Traffic (req/s), Latency, Error Percentage, and CPU/Memory Saturation.
 
-```markdown
-<!-- PASTE SCREENSHOT HERE: Grafana Golden Signals Dashboard -->
-![Grafana Golden Signals](docs/screenshots/06-grafana-golden-signals.png)
-```
+## Latency, Saturation (CPU) Usage, Error percentage and total requests per second
+
+<img width="1862" height="621" alt="image" src="https://github.com/user-attachments/assets/eaf0afbd-433f-4887-91a8-f0fff907d55c" />
+
+---------------------------------------------
+
+## Pod Memory Saturation panel:
+
+<img width="1860" height="312" alt="image" src="https://github.com/user-attachments/assets/c437529b-c6d2-4118-9ef4-35d7701988b8" />
+
+
 
 ---
 
 ### Evidence 7: Incident Simulation & Error Spike
 > **What to capture:** Grafana dashboard panel showing the Request Errors Percentage spike resulting from `/error` requests during traffic generation.
 
-```markdown
-<!-- PASTE SCREENSHOT HERE: Incident Simulation & Error Spike -->
-![Incident Error Spike](docs/screenshots/07-incident-simulation.png)
-```
+## Initial spike at chaos test start up:
+
+<img width="913" height="313" alt="image" src="https://github.com/user-attachments/assets/0a578b48-3761-4b3b-9b59-ad38fdb60152" />
+
 
 ---
 
 ### Evidence 8: Alertmanager & Prometheus Firing Alerts
 > **What to capture:** Prometheus UI (`http://localhost:9090/alerts`) or Alertmanager UI (`http://localhost:9093`) showing the `HighErrorRate5xx` rule in the `FIRING` state during traffic chaos generation.
 
-```markdown
-<!-- PASTE SCREENSHOT HERE: Alertmanager Firing Alert -->
-![Alertmanager Firing Alert](docs/screenshots/08-alertmanager-firing.png)
-```
+## Alert Firing in Prometheus:
+
+<img width="888" height="520" alt="image" src="https://github.com/user-attachments/assets/e15a6aa4-037b-47fc-8d6d-29c5741d8437" />
+
 
 ---
 
@@ -416,4 +440,4 @@ helm get manifest grafana -n monitoring
 
 - **Project:** SRE Infrastructure as Code & Observability Platform
 - **Methodology:** Infrastructure as Code (Terraform), Kubernetes Orchestration, Cloud-Native Telemetry (Prometheus), Golden Signals Monitoring (Grafana).
-- **Evaluation Criteria:** Declarative deployment, security baseline (non-root containers), fault injection readiness, automated service discovery, and metric-driven operational visibility.
+
