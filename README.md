@@ -31,13 +31,8 @@ An end-to-end Site Reliability Engineering (SRE) project demonstrating **Infrast
 
 ---
 
-## 🏛 Architecture Overview
 
-<p align="center">
-  <img width="1315" height="552" alt="SRE Architecture Overview" src="https://github.com/user-attachments/assets/cf7890bd-2e1b-44c8-ae15-166334fc0357" />
-</p>
-
-### System Topology & Metric Flow
+### 🗺️ System Topology & Metric Flow
 
 ```mermaid
 graph TD
@@ -73,8 +68,6 @@ graph TD
 
 ```text
 .
-├── Docs/
-│   └── README.md                       # Initial environment setup notes & provider reference
 ├── scripts/
 │   └── traffic-test.sh                 # Automated load and HTTP 500 error chaos generator
 ├── Terraform/
@@ -94,7 +87,6 @@ graph TD
 │       │   ├── prometheus-config.yaml          # Standalone Prometheus server configuration
 │       │   └── configmap-prometheus-server.yaml# Prometheus ConfigMap backup & reference
 │       └── README.md                   # Stack documentation
-├── notes.txt                           # Handy operational commands and credential extraction snippets
 └── README.md                           # Master SRE Project Documentation
 ```
 
