@@ -49,8 +49,8 @@ function cluster_up() {
     if minikube status >/dev/null 2>&1; then
         log_info "Minikube is already running."
     else
-        log_info "Starting Minikube (4 CPUs, 8GB RAM)..."
-        minikube start --cpus=4 --memory=8192 --driver=docker
+        log_info "Starting Minikube (4 CPUs, 3072mb RAM)..."
+        minikube start --cpus=4 --memory=3072 --driver=docker
     fi
 
     # 2. Deploy Terraform Stack

@@ -1,4 +1,4 @@
-Mmmmm# 🚀 SRE Infrastructure as Code & Observability Platform
+# 🚀 SRE Infrastructure as Code & Observability Platform
 
 An end-to-end Site Reliability Engineering (SRE) project demonstrating **Infrastructure as Code (IaC)**, **Microservices Metric Instrumentation**, and **Cloud-Native Observability**. This project provisions a resilient multi-namespace Kubernetes environment on Minikube using Terraform, deploys an instrumented Python Flask microservice, and configures an observability stack featuring **Prometheus** and **Grafana** with automated Golden Signals dashboards and alerting rules.
 
